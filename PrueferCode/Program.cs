@@ -81,9 +81,14 @@ public class PrueferEncoder
     //Кодирование графа
     public IEnumerable<int> Encode(IEnumerable<(int x1, int x2)> graph)
     {
+        //Создание пустого кода
         IList<int> prueferCode = new List<int>();
+
+        //Копия графа
         var graphClone = new List<(int x1, int x2)>(graph);
 
+        //Пока у графа не осталось одно ребро получаем минимальную вершину,
+        //убираем её с графа и записываем вершину, которая идет в код прюфера
         while (graphClone.Count() > 1)
         {
             var minIndex = GetIndexOfMin(graphClone);
@@ -99,44 +104,53 @@ public class PrueferEncoder
     //Декодирование графа
     public IEnumerable<(int x1, int x2)> Decode(IEnumerable<int> prueferCode)
     {
+        //Пустой граф, где x1 - начальная вершина ребра, x2 - конечная
         IList<(int x1, int x2)> graph = new List<(int x1, int x2)>();
-        IList<int> restoredVertexes = new List<int>();
+        //Восстановленные вершины
+        IList<int> vosstanovlenayVershini = new List<int>();
+        //Копия кода прюфера
         IList<int> prueferCodeClone = new List<int>(prueferCode);
+
+        //Кол-во вершин графа
         var vertexCount = prueferCode.Count() + 2;
 
-        int restoredVertex;
+        int vosstanovlennayVershina;
 
-        //Пока не восстановлен весь код прюфера ищем отсутствующую вершину и записываем в список восстановленных
+        //Пока не восстановлен весь код прюфера
         while (prueferCodeClone.Count > 0)
         {
-            restoredVertex = FindMissingVertex(prueferCodeClone, restoredVertexes, vertexCount);
+            //Ищем отсутствующую вершину
+            vosstanovlennayVershina = FindMissingVertex(prueferCodeClone, vosstanovlenayVershini, vertexCount);
 
-            if (restoredVertex == -1)
+            if (vosstanovlennayVershina == -1)
             {
                 throw new InvalidOperationException("Ошибка при вычислении, не найдена отсутствующая вершина.");
             }
 
-            restoredVertexes.Add(restoredVertex);
-            graph.Add((prueferCodeClone[0], restoredVertex));
+            //Добавление найденной вершины в список восстановленных вершин и
+            //добавление вершины к графу
+            vosstanovlenayVershini.Add(vosstanovlennayVershina);
+            graph.Add((prueferCodeClone[0], vosstanovlennayVershina));
 
+            //Убираем вершину из кода прюфера
             prueferCodeClone.RemoveAt(0);
         }
 
-        //Восстанавливаем две оставшиеся вершины
-        restoredVertex = FindMissingVertex(prueferCodeClone, restoredVertexes, vertexCount);
-        restoredVertexes.Add(restoredVertex);
+        //Восстанавливаем две оставшиеся вершины таким же образом
+        vosstanovlennayVershina = FindMissingVertex(prueferCodeClone, vosstanovlenayVershini, vertexCount);
+        vosstanovlenayVershini.Add(vosstanovlennayVershina);
 
         graph.Add((
             graph.Last().x2,
-            restoredVertex
+            vosstanovlennayVershina
             ));
 
-        restoredVertex = FindMissingVertex(prueferCodeClone, restoredVertexes, vertexCount);
-        restoredVertexes.Add(restoredVertex);
+        vosstanovlennayVershina = FindMissingVertex(prueferCodeClone, vosstanovlenayVershini, vertexCount);
+        vosstanovlenayVershini.Add(vosstanovlennayVershina);
 
         graph.Add((
             graph.Last().x2,
-            restoredVertex
+            vosstanovlennayVershina
             ));
 
         return graph;
@@ -145,19 +159,24 @@ public class PrueferEncoder
     //Вспомогательый метод нахождения минимальной вершины графа для занесения в код.
     private int GetIndexOfMin(IEnumerable<(int x1, int x2)> graph)
     {
-        var min = graph.Where(e => !graph.Any(edge => edge.x1 == e.x2)).MinBy(e => e.x2);
+        var min = graph
+            .Where(e => !graph.Any(edge => edge.x1 == e.x2)) //Берем все висящие ребра
+            .MinBy(e => e.x2); //Находим минимальную вершину среди них
 
+        //возращаем минимальную вершину
         return graph.ToList().FindIndex(v => v == min);
     }
 
     //Ищет недостающую вершину при восстановлении
-    private int FindMissingVertex(IEnumerable<int> prueferCode, IEnumerable<int> restoredVertex, int vertexCount)
+    private int FindMissingVertex(IEnumerable<int> prueferCode, IEnumerable<int> vosstanovlenniiVershini, int kolvoVershin)
     {
-        for (int vertex = 1; vertex <= vertexCount; vertex++)
+        //Перебираем все вершины
+        for (int vershina = 1; vershina <= kolvoVershin; vershina++)
         {
-            if (!prueferCode.Contains(vertex) && !restoredVertex.Contains(vertex))
+            //Если вершины нет не в графе, не в списке восстановленных вершин, возвращаем её
+            if (!prueferCode.Contains(vershina) && !vosstanovlenniiVershini.Contains(vershina))
             {
-                return vertex;
+                return vershina;
             }
         }
 
