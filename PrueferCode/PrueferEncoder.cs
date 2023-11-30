@@ -2,6 +2,10 @@
 {
     public class PrueferEncoder
     {
+        /// <summary>
+        /// Кодирование графа.
+        /// </summary>
+        /// <returns>Код прюфера.</returns>
         public IEnumerable<int> Encode(int[,] graph)
         {
             if (graph.GetLength(0) != 2)
@@ -19,6 +23,10 @@
             return Encode(graphList);
         }
 
+        /// <summary>
+        /// Кодирование графа.
+        /// </summary>
+        /// <returns>Код прюфера.</returns>
         public IEnumerable<int> Encode(IEnumerable<(int x1, int x2)> graph)
         {
             IList<int> prueferCode = new List<int>();
@@ -36,6 +44,10 @@
             return prueferCode;
         }
 
+        /// <summary>
+        /// Декодирование графа.
+        /// </summary>
+        /// <returns>Вершины графа.</returns>
         public IEnumerable<(int x1, int x2)> Decode(IEnumerable<int> prueferCode)
         {
             IList<(int x1, int x2)> graph = new List<(int x1, int x2)>();

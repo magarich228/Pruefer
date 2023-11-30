@@ -1,9 +1,14 @@
 ﻿using Newtonsoft.Json;
 using PrueferCode;
 
-Console.WriteLine("Введите путь до файла:");
+string? path = args.FirstOrDefault();
 
-var path = Console.ReadLine();
+if (!args.Any())
+{
+    Console.WriteLine("Введите путь до файла:");
+
+    path = Console.ReadLine();
+}
 
 if (string.IsNullOrEmpty(path) || !File.Exists(path))
 {
